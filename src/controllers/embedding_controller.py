@@ -16,10 +16,7 @@ async def create_embedding(
     embedding_service: Annotated[EmbeddingService , Depends(get_embedding_service)]
 ):
     try:
-        result = await embedding_service.generate_embedding(
-            request.user_text,
-            request.model_name
-        )
+        result = await embedding_service.generate_embedding(request)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

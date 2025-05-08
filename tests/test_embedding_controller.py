@@ -45,7 +45,10 @@ class TestEmbeddingController:
 
         # Assert service was called with correct params
         mock_service.generate_embedding.assert_called_once_with(
-            "This is a test", "text-embedding-005"
+            EmbeddingRequest(
+                user_text="This is a test",
+                model_name="text-embedding-005"
+            )
         )
 
         # Assert response is correct
