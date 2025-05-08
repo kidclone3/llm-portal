@@ -1,11 +1,10 @@
-from typing import Dict, List, Any
-import os
 import logging
-from abc import ABC, abstractmethod
+from typing import Any, Dict
 
 # Import providers
 from src.services.providers.openai_provider import OpenAIProvider
 from src.services.providers.vertexai_provider import VertexAIProvider
+
 
 class EmbeddingService:
     def __init__(self):
@@ -17,14 +16,9 @@ class EmbeddingService:
         # Mapping of model names to providers
         self.model_provider_map = {
             # OpenAI models
-            "text-embedding-ada-002": "openai",
-            "text-embedding-3-small": "openai",
-            "text-embedding-3-large": "openai",
-
+            **OpenAIProvider().model_configs,
             # Google/VertexAI models
-            "textembedding-gecko": "vertexai",
-            "textembedding-gecko-multilingual": "vertexai",
-            "text-embedding": "vertexai"  # General Vertex AI embedding model
+            **VertexAIProvider().model_configs,
         }
 
     async def generate_embedding(self, text: str, model_name: str) -> Dict[str, Any]:

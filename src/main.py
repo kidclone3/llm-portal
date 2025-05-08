@@ -1,6 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI
 import uvicorn
+
 from src.controllers.embedding_controller import router as embedding_router
+
 
 app = FastAPI(
     title="Embedding Portal API",

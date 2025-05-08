@@ -1,13 +1,16 @@
-import pytest
+from unittest.mock import AsyncMock, patch
+
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
-from unittest.mock import AsyncMock, MagicMock, patch
+import pytest
+
+from src.controllers.embedding_controller import create_embedding
 
 # Import the FastAPI app and necessary modules
 from src.main import app
-from src.controllers.embedding_controller import create_embedding
-from src.services.embedding_service import EmbeddingService
 from src.models.embedding_schemas import EmbeddingRequest
+from src.services.embedding_service import EmbeddingService
+
 
 # Setup test client
 client = TestClient(app)
@@ -15,7 +18,7 @@ client = TestClient(app)
 class TestEmbeddingController:
 
     @pytest.mark.asyncio
-    @patch('services.embedding_service.get_embedding_service')
+    @patch("services.embedding_service.get_embedding_service")
     async def test_create_embedding_success(self, mock_get_embedding_service, monkeypatch):
         """Test successful embedding creation"""
         # Mock the embedding service
@@ -49,7 +52,7 @@ class TestEmbeddingController:
         assert response == mock_result
 
     @pytest.mark.asyncio
-    @patch('services.embedding_service.get_embedding_service')
+    @patch("services.embedding_service.get_embedding_service")
     async def test_create_embedding_value_error(self, mock_get_embedding_service):
         """Test handling of ValueError from service"""
         # Mock the embedding service
@@ -74,7 +77,7 @@ class TestEmbeddingController:
         assert exc_info.value.detail == "Invalid model name"
 
     @pytest.mark.asyncio
-    @patch('services.embedding_service.get_embedding_service')
+    @patch("services.embedding_service.get_embedding_service")
     async def test_create_embedding_generic_error(self, mock_get_embedding_service):
         """Test handling of generic Exception from service"""
         # Mock the embedding service
@@ -102,7 +105,7 @@ class TestEmbeddingController:
         """Test the API endpoint through the test client"""
 
         # Use the test client to make a request
-        with patch('services.embedding_service.EmbeddingService.generate_embedding') as mock_generate:
+        with patch("services.embedding_service.EmbeddingService.generate_embedding") as mock_generate:
             # Mock the service method to avoid actual API calls
             mock_generate.return_value = {
                 "embedding": [0.1, 0.2, 0.3],

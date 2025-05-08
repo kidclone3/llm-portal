@@ -1,6 +1,7 @@
 # LLM Embedding Portal
 
 ## Project Structure
+
 ```
 embedding-portal/
 ├── main.py                         # FastAPI application entry point

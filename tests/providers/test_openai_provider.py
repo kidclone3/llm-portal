@@ -1,8 +1,10 @@
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch, mock_open
 import os
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from src.services.providers.openai_provider import OpenAIProvider
+
 
 class TestOpenAIProvider:
 

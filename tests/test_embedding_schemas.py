@@ -1,6 +1,8 @@
-import pytest
 from pydantic import ValidationError
+import pytest
+
 from src.models.embedding_schemas import EmbeddingRequest, EmbeddingResponse
+
 
 class TestEmbeddingSchemas:
     def test_valid_embedding_request(self):

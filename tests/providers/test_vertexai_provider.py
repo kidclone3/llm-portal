@@ -1,11 +1,12 @@
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch, mock_open
-import os
 import asyncio
+import os
+from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 from vertexai.language_models import TextEmbeddingModel
 
 from src.services.providers.vertexai_provider import VertexAIProvider
+
 
 class TestVertexAIProvider:
 
@@ -23,7 +24,7 @@ class TestVertexAIProvider:
         self.original_env = os.environ.copy()
 
         # Patch vertexai.init to prevent actual initialization
-        self.init_patch = patch('vertexai.init')
+        self.init_patch = patch("vertexai.init")
         self.mock_init = self.init_patch.start()
 
         # Create provider instance
@@ -60,7 +61,7 @@ class TestVertexAIProvider:
         os.environ["GOOGLE_CLOUD_PROJECT"] = "test-project"
         os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
 
-        with patch('vertexai.init'):
+        with patch("vertexai.init"):
             provider = VertexAIProvider()
             # Verify model configs are set
             assert "text-embedding-005" in provider.model_configs
@@ -85,7 +86,7 @@ class TestVertexAIProvider:
         mock_model = AsyncMock()
         mock_model.get_embeddings_async.return_value = mock_embeddings
 
-        with patch.object(TextEmbeddingModel, 'from_pretrained', return_value=mock_model):
+        with patch.object(TextEmbeddingModel, "from_pretrained", return_value=mock_model):
             # Call method
             result = await provider.get_embedding(test_text, test_model)
 
@@ -102,7 +103,7 @@ class TestVertexAIProvider:
         os.environ.pop("GOOGLE_CLOUD_PROJECT", None)
 
         # Create a new provider with no project ID
-        with patch('vertexai.init'):
+        with patch("vertexai.init"):
             provider = VertexAIProvider()
 
         # Call and expect exception
@@ -120,8 +121,8 @@ class TestVertexAIProvider:
         assert "Unsupported Vertex AI model" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    @patch('vertexai.language_models.TextEmbeddingModel.from_pretrained')
-    @patch('asyncio.get_event_loop')
+    @patch("vertexai.language_models.TextEmbeddingModel.from_pretrained")
+    @patch("asyncio.get_event_loop")
     async def test_get_embedding_api_error(self, mock_get_loop, mock_from_pretrained):
         """Test handling of API errors"""
         # Setup mock to raise exception
@@ -137,7 +138,7 @@ class TestVertexAIProvider:
         assert "Vertex AI embedding failed" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    @patch('vertexai.language_models.TextEmbeddingModel.from_pretrained')
+    @patch("vertexai.language_models.TextEmbeddingModel.from_pretrained")
     def test_generate_embedding_sync(self, mock_from_pretrained):
         """Test the synchronous embedding generation method"""
         # Setup mock embedding model
@@ -161,7 +162,7 @@ class TestVertexAIProvider:
         assert result == mock_embedding
 
     @pytest.mark.asyncio
-    @patch('vertexai.language_models.TextEmbeddingModel.from_pretrained')
+    @patch("vertexai.language_models.TextEmbeddingModel.from_pretrained")
     def test_generate_embedding_sync_empty_result(self, mock_from_pretrained):
         """Test handling of empty result from get_embeddings"""
         # Setup mock with empty result

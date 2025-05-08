@@ -1,10 +1,11 @@
-import os
 import logging
-from typing import List, Dict, Any
-import asyncio
+import os
+from typing import List
+
 from google.oauth2 import service_account
 import vertexai
 from vertexai.language_models import TextEmbeddingModel
+
 
 class VertexAIProvider:
     def __init__(self):

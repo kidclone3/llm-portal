@@ -1,7 +1,9 @@
-import os
 import logging
-from typing import List, Dict, Any
+import os
+from typing import List
+
 from openai import AsyncOpenAI
+
 
 class OpenAIProvider:
     def __init__(self):
