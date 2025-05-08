@@ -18,7 +18,7 @@ client = TestClient(app)
 class TestEmbeddingController:
 
     @pytest.mark.asyncio
-    @patch("services.embedding_service.get_embedding_service")
+    @patch("src.services.embedding_service.get_embedding_service")
     async def test_create_embedding_success(self, mock_get_embedding_service, monkeypatch):
         """Test successful embedding creation"""
         # Mock the embedding service
@@ -29,15 +29,15 @@ class TestEmbeddingController:
         mock_result = {
             "embedding": [0.1, 0.2, 0.3, 0.4, 0.5],
             "dimensions": 5,
-            "model_used": "text-embedding-ada-002",
-            "provider": "openai"
+            "model_used": "text-embedding-005",
+            "provider": "vertexai"
         }
         mock_service.generate_embedding.return_value = mock_result
 
         # Test request data
         request = EmbeddingRequest(
             user_text="This is a test",
-            model_name="text-embedding-ada-002"
+            model_name="text-embedding-005"
         )
 
         # Call the endpoint directly with dependency override
@@ -45,14 +45,14 @@ class TestEmbeddingController:
 
         # Assert service was called with correct params
         mock_service.generate_embedding.assert_called_once_with(
-            "This is a test", "text-embedding-ada-002"
+            "This is a test", "text-embedding-005"
         )
 
         # Assert response is correct
         assert response == mock_result
 
     @pytest.mark.asyncio
-    @patch("services.embedding_service.get_embedding_service")
+    @patch("src.services.embedding_service.get_embedding_service")
     async def test_create_embedding_value_error(self, mock_get_embedding_service):
         """Test handling of ValueError from service"""
         # Mock the embedding service
@@ -77,7 +77,7 @@ class TestEmbeddingController:
         assert exc_info.value.detail == "Invalid model name"
 
     @pytest.mark.asyncio
-    @patch("services.embedding_service.get_embedding_service")
+    @patch("src.services.embedding_service.get_embedding_service")
     async def test_create_embedding_generic_error(self, mock_get_embedding_service):
         """Test handling of generic Exception from service"""
         # Mock the embedding service
@@ -90,7 +90,7 @@ class TestEmbeddingController:
         # Test request data
         request = EmbeddingRequest(
             user_text="This is a test",
-            model_name="text-embedding-ada-002"
+            model_name="text-embedding-005"
         )
 
         # Call the endpoint and expect HTTPException
@@ -105,13 +105,13 @@ class TestEmbeddingController:
         """Test the API endpoint through the test client"""
 
         # Use the test client to make a request
-        with patch("services.embedding_service.EmbeddingService.generate_embedding") as mock_generate:
+        with patch("src.services.embedding_service.EmbeddingService.generate_embedding") as mock_generate:
             # Mock the service method to avoid actual API calls
             mock_generate.return_value = {
                 "embedding": [0.1, 0.2, 0.3],
                 "dimensions": 3,
-                "model_used": "text-embedding-ada-002",
-                "provider": "openai"
+                "model_used": "text-embedding-005",
+                "provider": "vertexai"
             }
 
             # Make request to the API
@@ -119,7 +119,7 @@ class TestEmbeddingController:
                 "/api/v1/embeddings",
                 json={
                     "user_text": "Test text",
-                    "model_name": "text-embedding-ada-002"
+                    "model_name": "text-embedding-005"
                 }
             )
 
@@ -128,5 +128,5 @@ class TestEmbeddingController:
             data = response.json()
             assert data["embedding"] == [0.1, 0.2, 0.3]
             assert data["dimensions"] == 3
-            assert data["model_used"] == "text-embedding-ada-002"
-            assert data["provider"] == "openai"
+            assert data["model_used"] == "text-embedding-005"
+            assert data["provider"] == "vertexai"

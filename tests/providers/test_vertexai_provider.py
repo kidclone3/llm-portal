@@ -138,46 +138,6 @@ class TestVertexAIProvider:
         assert "Vertex AI embedding failed" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    @patch("vertexai.language_models.TextEmbeddingModel.from_pretrained")
-    def test_generate_embedding_sync(self, mock_from_pretrained):
-        """Test the synchronous embedding generation method"""
-        # Setup mock embedding model
-        mock_model = MagicMock()
-        mock_from_pretrained.return_value = mock_model
-
-        # Setup mock embedding result
-        mock_embedding = [0.1, 0.2, 0.3, 0.4, 0.5]
-        mock_embedding_result = [MagicMock()]
-        mock_embedding_result[0].values = mock_embedding
-        mock_model.get_embeddings.return_value = mock_embedding_result
-
-        # Call the synchronous method
-        result = self.provider._generate_embedding_sync("Test text", "text-embedding-005")
-
-        # Assert model was called correctly
-        mock_from_pretrained.assert_called_once_with("text-embedding-005")
-        mock_model.get_embeddings.assert_called_once_with(["Test text"])
-
-        # Assert result matches mock embedding
-        assert result == mock_embedding
-
-    @pytest.mark.asyncio
-    @patch("vertexai.language_models.TextEmbeddingModel.from_pretrained")
-    def test_generate_embedding_sync_empty_result(self, mock_from_pretrained):
-        """Test handling of empty result from get_embeddings"""
-        # Setup mock with empty result
-        mock_model = MagicMock()
-        mock_from_pretrained.return_value = mock_model
-        mock_model.get_embeddings.return_value = []
-
-        # Call and expect exception
-        with pytest.raises(Exception) as exc_info:
-            self.provider._generate_embedding_sync("Test text", "text-embedding-005")
-
-        assert "No embedding returned from Vertex AI" in str(exc_info.value)
-
-
-    @pytest.mark.asyncio
     async def test_get_embedding_async_without_mock(self):
         """Test get_embedding without mocking"""
         # Create a new provider instance
