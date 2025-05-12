@@ -1,8 +1,13 @@
+from unittest.mock import patch
+
 import pytest
-import core
 from typing import List, Optional, Any
 
+import utils
+
 from llm_portal.adapters.llm_providers import LLMProvider
+from llm_portal.service.handlers import command, event
+import core
 
 
 class InMemoryEmbeddingsRepository:
@@ -42,7 +47,8 @@ class InMemoryUnitOfWork(core.UnitOfWork):
     Simulates database operations without requiring a real database.
     """
     def __init__(self):
-        super().__init__()
+        self.config = utils.get_config()
+        self.factory = None
         self.embeddings_repository = InMemoryEmbeddingsRepository()
         self.committed = False
     
@@ -69,13 +75,8 @@ class InMemoryUnitOfWork(core.UnitOfWork):
 
 
 class FakeLLMProvider(LLMProvider):
-    def __init__(self, name: str):
-        super().__init__()
-        self.name = name
-
-    @property
-    def provider_name(self) -> str:
-        return self.name
+    def __init__(self, provider_name: str):
+        super().__init__("fake-provider")
 
     @property
     def available_models(self) -> List[str]:
@@ -91,22 +92,16 @@ class FakeLLMProvider(LLMProvider):
         return [0.1 * len(text) for _ in range(10)]
 
 @pytest.fixture(autouse=True)
-def mock_llm_provider_factory(monkeypatch):
-    def fake_factory(provider_name: str, **kwargs):
-        return FakeLLMProvider(provider_name)
-    monkeypatch.setattr(
-        "llm_portal.adapters.provider_factory.llm_provider_factory",
-        fake_factory
-    )
+def mock_llm_provider_factory():
+    """Replace the real LLM provider factory with a fake implementation."""
+    patcher = patch("llm_portal.service.handlers.command.llm_provider_factory")
+    mock_factory = patcher.start()
+    mock_factory.side_effect = lambda provider_name, **kwargs: FakeLLMProvider(provider_name)
 
-@pytest.fixture
-def setup_test_environment():
-    """
-    Configure the test environment by replacing core services with test doubles.
-    Restores original implementations after the test.
-    """
+    # This ensures the patch is stopped even if the test fails
+    yield mock_factory
 
-    # override factory
+    patcher.stop()
 
 
 @pytest.fixture
@@ -116,32 +111,20 @@ def in_memory_uow():
     """
     return InMemoryUnitOfWork()
 
-
 @pytest.fixture
-def integration_uow():
-    """
-    Create a real UoW with a test database connection.
-    """
-    try:
-        # Try to create a UoW with an in-memory SQLite database
-        from core import create_uow
-        uow = create_uow(db_url="sqlite:///:memory:")
-        
-        # Set up any necessary database schema
-        with uow:
-            if hasattr(uow, 'setup_database'):
-                uow.setup_database()
-        
-        return uow
-    except (ImportError, AttributeError):
-        # If core doesn't provide a create_uow function, fall back to in-memory
-        pytest.skip("Integration UoW not available - using in-memory UoW instead")
-        return InMemoryUnitOfWork()
+def fake_message_bus():
+    config = utils.get_config()
 
+    dependencies = {
+        "uow": InMemoryUnitOfWork(),
+        "publisher": None,
+    }
 
-@pytest.fixture
-def stub_embedding_provider():
-    """
-    Create a stub embedding provider with default dimensions.
-    """
-    return StubEmbeddingProvider()
+    bootstrap = core.Bootstrapper(
+        use_orm=False,
+        orm_func=lambda: None,
+        command_router=command.COMMAND_HANDLERS,
+        event_router=event.EVENT_HANDLERS,
+        dependencies=dependencies
+    )
+    return bootstrap.bootstrap()

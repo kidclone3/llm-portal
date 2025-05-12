@@ -7,7 +7,7 @@ class VertexAIProvider(LLMProvider):
     """Vertex AI embedding provider."""
 
     def __init__(self, project_id: str, credentials_path: str, location: str = "us-central1"):
-        super().__init__()
+        super().__init__("vertexai")
         self.project_id = project_id
         self.location = location
         self.credentials_path = credentials_path
@@ -57,10 +57,6 @@ class VertexAIProvider(LLMProvider):
         except Exception as e:
             # logging.error(f"Vertex AI embedding error: {str(e)}")
             raise Exception(f"Vertex AI embedding failed: {str(e)}")
-
-    @property
-    def provider_name(self) -> str:
-        return "vertexai"
 
     @property
     def available_models(self) -> List[str]:

@@ -1,5 +1,8 @@
 import core
 
+from llm_portal import dependencies
+from llm_portal.service.handlers import command, event
+
 BOOTSTRAPPER = core.Bootstrapper(
     use_orm=False,
     orm_func=lambda: None,

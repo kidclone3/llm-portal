@@ -4,6 +4,11 @@ from typing import List
 
 
 class LLMProvider(ABC):
+
+    def __init__(self, provider_name:str):
+        self._provider_name = provider_name
+        self._embedding_models = {}
+
     @abstractmethod
     def generate_embeddings(self, text: str, model: str = None) -> List[float]:
         """Generate embeddings for the given text using the specified model"""
@@ -16,13 +21,16 @@ class LLMProvider(ABC):
 
 
     @property
-    @abstractmethod
     def provider_name(self) -> str:
         """Return the name of this embedding provider"""
-        pass
+        return self._provider_name
 
     @property
     @abstractmethod
     def available_models(self) -> List[str]:
         """Return a list of available embedding models for this provider"""
         pass
+
+    @provider_name.setter
+    def provider_name(self, value):
+        self._provider_name = value

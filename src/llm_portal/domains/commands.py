@@ -14,13 +14,15 @@ class InputTextCommand(core.Command):
 
     Args:
         text (str): The text to be processed
+        provider_name (str): The name of the provider used for embedding
         embedding_model (str): The model used for embedding the text
     """
     text: str
+    provider_name: str
     embedding_model: str
 
 
-class EmbeddingResult(core.BaseModel):
+class EmbeddingResult(core.BaseModel, pydantic.BaseModel):
     """
     Embedding result
 
