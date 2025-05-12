@@ -2,6 +2,7 @@ import core
 import pydantic
 __all__ = [
     "InputTextCommand",
+    "EmbeddingResult",
 ]
 
 import core
@@ -19,25 +20,9 @@ class InputTextCommand(core.Command):
     embedding_model: str
 
 
-class EmbeddingResult(core.Command):
+class EmbeddingResult(core.BaseModel):
     """
-    Embedding result command
-
-    Args:
-        embedding (List[float]): The embedding vector
-        dimensions (int): The number of dimensions in the embedding
-        embedding_model (str): The model used for generating the embedding
-        provider (str): The provider of the embedding model
-    """
-    embedding: List[float]
-    dimensions: int
-    embedding_model: str
-    provider: str
-
-
-class EmbeddingResult(core.Command):
-    """
-    Embedding result command
+    Embedding result
 
     Args:
         embedding (List[float]): The embedding vector

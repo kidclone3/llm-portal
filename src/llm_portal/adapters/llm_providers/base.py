@@ -3,11 +3,17 @@ from abc import ABC, abstractmethod
 from typing import List
 
 
-class EmbeddingProvider(ABC):
+class LLMProvider(ABC):
     @abstractmethod
     def generate_embeddings(self, text: str, model: str = None) -> List[float]:
         """Generate embeddings for the given text using the specified model"""
         pass
+
+    def _validate_embedding_model(self, model: str) -> None:
+        """Validate the model name."""
+        if model not in self._embedding_models:
+            raise ValueError(f"Model {model} is not supported. Supported models are: {list(self._embedding_models.keys())}")
+
 
     @property
     @abstractmethod

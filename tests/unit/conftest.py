@@ -2,6 +2,8 @@ import pytest
 import core
 from typing import List, Optional, Any
 
+from llm_portal.adapters.llm_providers import LLMProvider
+
 
 class InMemoryEmbeddingsRepository:
     """
@@ -40,6 +42,7 @@ class InMemoryUnitOfWork(core.UnitOfWork):
     Simulates database operations without requiring a real database.
     """
     def __init__(self):
+        super().__init__()
         self.embeddings_repository = InMemoryEmbeddingsRepository()
         self.committed = False
     
@@ -65,32 +68,36 @@ class InMemoryUnitOfWork(core.UnitOfWork):
         pass
 
 
-class StubEmbeddingProvider:
-    """
-    A deterministic embedding provider for testing.
-    Generates predictable embeddings based on input text.
-    """
-    def __init__(self, dimensions: int = 10):
-        self.dimensions = dimensions
-    
+class FakeLLMProvider(LLMProvider):
+    def __init__(self, name: str):
+        super().__init__()
+        self.name = name
+
+    @property
+    def provider_name(self) -> str:
+        return self.name
+
+    @property
+    def available_models(self) -> List[str]:
+        return ["fake-model-1", "fake-model-2"]
     def generate_embeddings(self, text: str, model: Optional[str] = None) -> List[float]:
         """
-        Generate deterministic embeddings based on input text.
-        Empty text returns an empty list.
-        Non-empty text returns a list of dimension values following a pattern.
+        Generate embeddings using a fake model.
         """
         if not text:
             return []
-        
-        # Create a deterministic but unique pattern based on text length and content
-        seed = sum(ord(c) for c in text[:5]) if text else 0
-        
-        # Generate embeddings of fixed dimension
-        return [
-            0.1 * ((i + 1) * (seed % 10 + 1) / 10) 
-            for i in range(self.dimensions)
-        ]
 
+        # Generate a fake embedding based on the text length
+        return [0.1 * len(text) for _ in range(10)]
+
+@pytest.fixture(autouse=True)
+def mock_llm_provider_factory(monkeypatch):
+    def fake_factory(provider_name: str, **kwargs):
+        return FakeLLMProvider(provider_name)
+    monkeypatch.setattr(
+        "llm_portal.adapters.provider_factory.llm_provider_factory",
+        fake_factory
+    )
 
 @pytest.fixture
 def setup_test_environment():
@@ -98,31 +105,8 @@ def setup_test_environment():
     Configure the test environment by replacing core services with test doubles.
     Restores original implementations after the test.
     """
-    # Store original implementations
-    original_generate_embeddings = None
-    if hasattr(core.llm, 'generate_embeddings'):
-        original_generate_embeddings = core.llm.generate_embeddings
-    
-    # Create and set up test implementations
-    embedding_provider = StubEmbeddingProvider()
-    
-    # Replace real implementations with test doubles
-    if hasattr(core, 'llm'):
-        core.llm.generate_embeddings = embedding_provider.generate_embeddings
-    else:
-        # If core.llm doesn't exist, create it as a module-like object
-        class LLMModule:
-            pass
-        
-        llm_module = LLMModule()
-        llm_module.generate_embeddings = embedding_provider.generate_embeddings
-        core.llm = llm_module
-    
-    yield embedding_provider
-    
-    # Restore original implementations
-    if original_generate_embeddings is not None:
-        core.llm.generate_embeddings = original_generate_embeddings
+
+    # override factory
 
 
 @pytest.fixture
@@ -143,7 +127,7 @@ def integration_uow():
         from core import create_uow
         uow = create_uow(db_url="sqlite:///:memory:")
         
-        # Set up any needed database schema
+        # Set up any necessary database schema
         with uow:
             if hasattr(uow, 'setup_database'):
                 uow.setup_database()

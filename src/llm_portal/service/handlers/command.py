@@ -1,9 +1,7 @@
 import core
-from typing import List
+from typing import List, Callable
 
 from llm_portal.domains import commands
-
-
 def generate_text_embeddings(command: commands.InputTextCommand, uow: core.UnitOfWork) -> commands.EmbeddingResult:
     """
     Generate text embeddings for the given command.
@@ -34,5 +32,9 @@ def generate_text_embeddings(command: commands.InputTextCommand, uow: core.UnitO
 
         # Store the embeddings in the database
         uow.embeddings_repository.save_embeddings(result)
-        
+
         return result
+
+COMMAND_HANDLERS: dict[type[core.Command], Callable[..., None]] = {
+    commands.InputTextCommand: generate_text_embeddings,
+}
