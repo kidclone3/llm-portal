@@ -1,16 +1,20 @@
 from typing import List
 
-from .base import LLMProvider
+import utils
 from vertexai.language_models import TextEmbeddingModel
+
+from .base import LLMProvider
+
+config = utils.get_config()
 
 class VertexAIProvider(LLMProvider):
     """Vertex AI embedding provider."""
 
-    def __init__(self, project_id: str, credentials_path: str, location: str = "us-central1"):
+    def __init__(self):
         super().__init__("vertexai")
-        self.project_id = project_id
-        self.location = location
-        self.credentials_path = credentials_path
+        self.project_id = config["google"]["vertexai"]["project_id"]
+        self.location = config["google"]["vertexai"]["project_location"]
+        self.credentials_path = config["google"]["vertexai"]["credentials_path"]
         self._embedding_models = {
             "text-embedding-005": {
                 "dimensions": 768

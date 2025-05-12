@@ -1,13 +1,11 @@
+from typing import List, Optional
 from unittest.mock import patch
 
 import pytest
-from typing import List, Optional, Any
-
 import utils
 
 from llm_portal.adapters.llm_providers import LLMProvider
-from llm_portal.service.handlers import command, event
-import core
+from llm_portal.bootstrap import BOOTSTRAPPER
 
 
 class InMemoryEmbeddingsRepository:
@@ -18,30 +16,30 @@ class InMemoryEmbeddingsRepository:
     def __init__(self):
         self.embeddings = []
         self.id_counter = 1
-    
+
     def save_embeddings(self, embedding):
         """Save embeddings to the in-memory store"""
         # If the embedding has no ID, assign one (mimicking database behavior)
-        if hasattr(embedding, 'id') and embedding.id is None:
+        if hasattr(embedding, "id") and embedding.id is None:
             embedding.id = self.id_counter
             self.id_counter += 1
-            
+
         self.embeddings.append(embedding)
         return embedding
-    
+
     def get_by_id(self, embedding_id):
         """Retrieve embeddings by ID"""
         for embedding in self.embeddings:
-            if hasattr(embedding, 'id') and embedding.id == embedding_id:
+            if hasattr(embedding, "id") and embedding.id == embedding_id:
                 return embedding
         return None
-    
+
     def get_all(self):
         """Get all stored embeddings"""
         return self.embeddings
 
 
-class InMemoryUnitOfWork(core.UnitOfWork):
+class InMemoryUnitOfWork:
     """
     In-memory implementation of UnitOfWork for testing.
     Simulates database operations without requiring a real database.
@@ -51,24 +49,24 @@ class InMemoryUnitOfWork(core.UnitOfWork):
         self.factory = None
         self.embeddings_repository = InMemoryEmbeddingsRepository()
         self.committed = False
-    
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is None:
             self.commit()
         else:
             self.rollback()
-    
+
     def commit(self):
         """Simulate committing changes to a database"""
         self.committed = True
-    
+
     def rollback(self):
         """Simulate rolling back changes"""
         self.committed = False
-    
+
     def setup_database(self):
         """No-op for in-memory implementation"""
         pass
@@ -91,7 +89,7 @@ class FakeLLMProvider(LLMProvider):
         # Generate a fake embedding based on the text length
         return [0.1 * len(text) for _ in range(10)]
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_llm_provider_factory():
     """Replace the real LLM provider factory with a fake implementation."""
     patcher = patch("llm_portal.service.handlers.command.llm_provider_factory")
@@ -113,18 +111,13 @@ def in_memory_uow():
 
 @pytest.fixture
 def fake_message_bus():
-    config = utils.get_config()
-
-    dependencies = {
+    test_dependencies = {
         "uow": InMemoryUnitOfWork(),
         "publisher": None,
     }
 
-    bootstrap = core.Bootstrapper(
-        use_orm=False,
-        orm_func=lambda: None,
-        command_router=command.COMMAND_HANDLERS,
-        event_router=event.EVENT_HANDLERS,
-        dependencies=dependencies
-    )
-    return bootstrap.bootstrap()
+    # Patch the dependencies.DEPENDENCIES that's imported in bootstrap.py
+    with patch("llm_portal.dependencies.DEPENDENCIES", test_dependencies):
+        # Now bootstrap will use our test_dependencies
+        return BOOTSTRAPPER.bootstrap()
+
