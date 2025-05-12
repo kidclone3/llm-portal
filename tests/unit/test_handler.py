@@ -1,4 +1,3 @@
-from unittest.mock import Mock, patch
 
 import pytest
 
@@ -26,8 +25,6 @@ class TestCommandHandlers:
 
         # Assert
         assert isinstance(result, commands.EmbeddingResult)
-
-    # skip
 
     def test_generate_embedding_with_empty_text(self):
         """Test that generate_embedding handles empty text input properly"""

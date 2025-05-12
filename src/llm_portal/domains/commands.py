@@ -1,12 +1,12 @@
+from typing import List
+
 import core
 import pydantic
+
 __all__ = [
     "InputTextCommand",
     "EmbeddingResult",
 ]
-
-import core
-from typing import List, Optional
 
 class InputTextCommand(core.Command):
     """
@@ -22,7 +22,7 @@ class InputTextCommand(core.Command):
     embedding_model: str
 
 
-class EmbeddingResult(core.BaseModel, pydantic.BaseModel):
+class EmbeddingResult(pydantic.BaseModel):
     """
     Embedding result
 
