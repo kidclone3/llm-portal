@@ -7,7 +7,7 @@ from llm_portal.entrypoints import schemas
 from llm_portal.service import view
 
 bus = bootstrap.bootstrap()
-
+logger = utils.get_logger()
 router = fastapi.APIRouter()
 
 
@@ -27,14 +27,20 @@ async def embedding(
     # Placeholder for actual embedding logic
     # In a real implementation, this would call the appropriate service
     # to get the embedding based on the provider and model.
+    try:
+        bus.handle(command)
 
-    bus.handle(command)
-
-    with view.fetch_model(
-        model_cls=models.EmbeddedResult,
-        id=command._id,
-    ) as embedded_result:
-        return schemas.EmbeddedResponse(
-            result=embedded_result,
+        with view.fetch_model(
+            model_cls=models.EmbeddedResult,
+            id=command._id,
+        ) as embedded_result:
+            return schemas.EmbeddedResponse(
+                result=embedded_result,
+            )
+    except Exception as e:
+        logger.error(e)
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         )
 
