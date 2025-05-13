@@ -24,7 +24,7 @@ def generate_text_embeddings(command: commands.InputTextCommand, uow: core.UnitO
         llm_provider = llm_provider_factory(command.provider_name)
 
         # Generate embeddings using the LLM
-        embedding_vector = llm_provider.generate_embeddings(command.text, command.embedding_model)
+        embedding_vector = llm_provider.generate_embeddings([command.text], command.embedding_model)
 
         # Create embedding result
         result = models.EmbeddedResult(

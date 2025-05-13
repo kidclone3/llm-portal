@@ -21,6 +21,7 @@ class VertexAIProvider(LLMProvider):
         self.project_id = config["vertexai"]["project_id"]
         self.location = config["vertexai"]["project_location"]
         self.credentials_path = config["vertexai"]["credentials_path"]
+        # I think this model is configurable
         self._embedding_models = {
             "text-embedding-005": {
                 "dimensions": 768
@@ -29,15 +30,15 @@ class VertexAIProvider(LLMProvider):
                 "dimensions": 768
             },
             "text-embedding-large-exp-03-07": {
-                "dimensions": 768  # Default dimensions
+                "dimensions": 768
             }}
 
-    def generate_embeddings(self, text: str, model: str = None) -> List[float]:
+    def generate_embeddings(self, list_texts: list[str], model: str = None) -> List[float]:
         """
         Generates text embeddings using a specified pre-trained text embedding model.
 
         Args:
-            text (str): The input text for which embeddings are to be generated.
+            list_texts (list[str]): The list of input texts for which embeddings are to be generated.
             model (str, optional): The name or identifier of the pre-trained model to use.
                 If not provided, a default embedding model will be used.
 
@@ -54,10 +55,10 @@ class VertexAIProvider(LLMProvider):
 
         try:
             # Initialize the embedding model
-            model = TextEmbeddingModel.from_pretrained(model)
+            embedding_model = TextEmbeddingModel.from_pretrained(model)
 
             # Generate embeddings asynchronously
-            embeddings = model.get_embeddings([text])
+            embeddings = embedding_model.get_embeddings(list_texts)
 
             # Return the embedding vector
             if embeddings and len(embeddings) > 0:
@@ -67,6 +68,7 @@ class VertexAIProvider(LLMProvider):
         except Exception as e:
             # logging.error(f"Vertex AI embedding error: {str(e)}")
             raise Exception(f"Vertex AI embedding failed: {str(e)}")
+
 
     @property
     def available_models(self) -> List[str]:

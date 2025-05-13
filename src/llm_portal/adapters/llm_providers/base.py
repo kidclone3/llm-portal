@@ -10,8 +10,8 @@ class LLMProvider(ABC):
         self._embedding_models = {}
 
     @abstractmethod
-    def generate_embeddings(self, text: str, model: str = None) -> List[float]:
-        """Generate embeddings for the given text using the specified model"""
+    def generate_embeddings(self, list_texts: list[str], model: str = None) -> List[float]:
+        """Generate embeddings for the given list of texts using the specified model"""
         pass
 
     def _validate_embedding_model(self, model: str) -> None:
