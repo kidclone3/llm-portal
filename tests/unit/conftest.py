@@ -5,7 +5,7 @@ import pytest
 import utils
 
 from llm_portal.adapters.llm_providers import LLMProvider
-from llm_portal.bootstrap import BOOTSTRAPPER
+from llm_portal import bootstrap
 
 
 class InMemoryEmbeddingsRepository:
@@ -119,5 +119,5 @@ def fake_message_bus():
     # Patch the dependencies.DEPENDENCIES that's imported in bootstrap.py
     with patch("llm_portal.dependencies.DEPENDENCIES", test_dependencies):
         # Now bootstrap will use our test_dependencies
-        return BOOTSTRAPPER.bootstrap()
+        return bootstrap
 

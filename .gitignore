@@ -164,3 +164,6 @@ otp.json
 coverage/
 coverage.json
 .idea/
+
+# Database files
+*.sqlite

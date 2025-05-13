@@ -1,0 +1,4 @@
+vertexai:
+  project_id: gen-lang-client-0884898390
+  project_location: us-central1
+  credentials_path: /home/delus/.config/gcloud/application_default_credentials.json

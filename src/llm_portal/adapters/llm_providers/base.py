@@ -34,3 +34,6 @@ class LLMProvider(ABC):
     @provider_name.setter
     def provider_name(self, value):
         self._provider_name = value
+
+    def model_dimensions(self, model_name) -> int:
+        return self._embedding_models[model_name]["dimensions"]

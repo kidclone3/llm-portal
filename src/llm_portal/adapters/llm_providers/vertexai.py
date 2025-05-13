@@ -12,9 +12,15 @@ class VertexAIProvider(LLMProvider):
 
     def __init__(self):
         super().__init__("vertexai")
-        self.project_id = config["google"]["vertexai"]["project_id"]
-        self.location = config["google"]["vertexai"]["project_location"]
-        self.credentials_path = config["google"]["vertexai"]["credentials_path"]
+        assert config.get("vertexai") is not None, "Vertex AI config is missing"
+        assert config["vertexai"].get("project_id") is not None, "Project ID is missing"
+        assert config["vertexai"].get("project_location") is not None, "Project location is missing"
+        assert config["vertexai"].get("credentials_path") is not None, "Credentials path is missing"
+
+
+        self.project_id = config["vertexai"]["project_id"]
+        self.location = config["vertexai"]["project_location"]
+        self.credentials_path = config["vertexai"]["credentials_path"]
         self._embedding_models = {
             "text-embedding-005": {
                 "dimensions": 768
