@@ -1,6 +1,7 @@
 from typing import List, Optional
 from unittest.mock import patch
 
+import core
 import pytest
 import utils
 
@@ -39,12 +40,13 @@ class InMemoryEmbeddingsRepository:
         return self.embeddings
 
 
-class InMemoryUnitOfWork:
+class InMemoryUnitOfWork(core.UnitOfWork):
     """
     In-memory implementation of UnitOfWork for testing.
     Simulates database operations without requiring a real database.
     """
     def __init__(self):
+        super().__init__()
         self.config = utils.get_config()
         self.factory = None
         self.embeddings_repository = InMemoryEmbeddingsRepository()

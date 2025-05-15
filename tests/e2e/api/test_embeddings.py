@@ -1,9 +1,9 @@
 from fastapi import testclient
 from icecream import ic
 
-def test_embedding(rest_client: testclient.TestClient):
+def test_embeddings(rest_client: testclient.TestClient):
     response = rest_client.post(
-        "/embedding",
+        "/embeddings",
         json={"text": "Hello world", "embedding_model": "text-embedding-005", "provider_name": "vertexai"},
     )
     assert response.status_code == 200
@@ -17,7 +17,7 @@ def test_embedding(rest_client: testclient.TestClient):
 
 def test_empty_text_embedding(rest_client: testclient.TestClient):
     response = rest_client.post(
-        "/embedding",
+        "/embeddings",
         json={"text": "", "embedding_model": "text-embedding-005", "provider_name": "vertexai"},
     )
     assert response.status_code == 400

@@ -1,4 +1,3 @@
-# src/llm_portal/adapters/embedding_providers/base.py
 from abc import ABC, abstractmethod
 from typing import List
 

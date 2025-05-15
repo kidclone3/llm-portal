@@ -12,7 +12,7 @@ router = fastapi.APIRouter()
 
 
 
-@router.post("/embedding", status_code=fastapi.status.HTTP_200_OK)
+@router.post("/embeddings", status_code=fastapi.status.HTTP_200_OK)
 async def embedding(
         command: commands.InputTextCommand
 )-> schemas.EmbeddedResponse:

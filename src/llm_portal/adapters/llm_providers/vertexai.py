@@ -54,13 +54,10 @@ class VertexAIProvider(LLMProvider):
         self._validate_embedding_model(model)
 
         try:
-            # Initialize the embedding model
             embedding_model = TextEmbeddingModel.from_pretrained(model)
 
-            # Generate embeddings asynchronously
             embeddings = embedding_model.get_embeddings(list_texts)
 
-            # Return the embedding vector
             if embeddings and len(embeddings) > 0:
                 return embeddings[0].values
             else:
